@@ -11,7 +11,7 @@ class UsersController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+        
     }
 
     public function login(Request $request)
@@ -62,7 +62,18 @@ class UsersController extends Controller
      */
     public function me()
     {
-        return response()->json($this->guard()->user());
+        if ($this->guard()->user()) {
+            return response()->json([
+                'status' => true,
+                'user' => $this->guard()->user(),
+                'message' => 'Authorized'
+            ], 200);
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Unauthorized'
+        ], 401);
     }
 
     /**

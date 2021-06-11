@@ -16,13 +16,17 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::group([
-    'middleware'=> 'api'
+    'middleware'=> 'api',
+    'prefix' => 'user',
 ], function ($router) {
-    $router->group(['prefix'=> 'user'], function ($router) {
-        $router->post('register', [UsersController::class, 'register']);
-        $router->post('login', [UsersController::class, 'login']);
-        $router->post('logout', [UsersController::class, 'logout']);
-        $router->post('me', [UsersController::class, 'me']);
-    });
+    $router->post('register', [UsersController::class, 'register']);
+    $router->post('login', [UsersController::class, 'login']);
+});
 
+Route::group([
+    'middleware'=> 'auth:api',
+    'prefix' => 'user'
+], function ($router) {
+    $router->post('logout', [UsersController::class, 'logout']);
+    $router->post('me', [UsersController::class, 'me']);
 });
