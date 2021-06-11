@@ -85,7 +85,6 @@ export default {
             form: {
                 category_id:'',
                 name: '',
-                
             },
             errors: null,
             error: null,
@@ -151,7 +150,6 @@ export default {
 
         closeModal() {
             this.errors = this.error = null;
-            this.resetForm();
         },
 
         resetForm() {

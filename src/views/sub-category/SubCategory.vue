@@ -52,7 +52,6 @@
                         </button>
                     </div>
                     <form @submit.prevent="updateSubmit">
-                        {{ form }}
                         <div class="modal-body">
                             <span class="text-danger" v-if="error">{{ error }}</span>
                             <div class="form-group">
@@ -165,7 +164,6 @@ export default {
 
         closeModal() {
             this.errors = this.error = null;
-            this.resetForm();
         },
 
         resetForm() {
