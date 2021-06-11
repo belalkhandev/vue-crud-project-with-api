@@ -30,6 +30,10 @@ a, a:hover{
     text-decoration: none;
 }
 
+img {
+    max-width: 100%;
+}
+
 header {
     border-bottom: 1px solid var(--color-light);
 }
@@ -193,6 +197,32 @@ input[type="file"].form-control {
 .form-control:focus {
     box-shadow: none;
     border-color: var(--color-primary);
+}
+
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-box {
+    width: 400px;
+    border: 1px solid #ddd;
+    padding: 25px;
+}
+
+.login-box-header {
+    padding: 25px 0px 50px;
+    text-align: center;
+}
+
+.login-box-header img {
+    width: calc(100% - 100px);
+}
+
+.form-group span.text-danger {
+    font-weight: 400;
+    font-size: 12px
 }
 
 .no-data {

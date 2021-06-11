@@ -5,8 +5,7 @@ export default {
 
     state: {
         token: null,
-        user:null,
-        business_types: null
+        user:null
     },
 
     getters: {
@@ -17,10 +16,6 @@ export default {
         user (state) {
             return state.user
         },
-
-        business_types(state) {
-            return state.business_types
-        }
     },
 
     mutations: {
@@ -30,10 +25,6 @@ export default {
         
         SET_USER (state, user) {
             state.user = user
-        },
-        
-        SET_BUSINESS_TYPES (state, business_types) {
-            state.business_types = business_types
         },
 
         SET_USER_OTP (state, value) {
@@ -75,7 +66,11 @@ export default {
             }
 
             try{
-                const resuser = await axios.post('user/me')
+                const resuser = await axios.post('user/me', {
+                    headers: {
+                        'Authorization': 'Bearer '+ token
+                    }
+                })
                 commit('SET_USER', resuser.data.user)
                 
             }catch (e) {
@@ -86,7 +81,7 @@ export default {
 
         // register/signup user
         async signUp({dispatch, commit }, formData) {
-            const res = await axios.post('user/signup', formData)
+            const res = await axios.post('user/register', formData)
             if (res.data.status) {
                 commit('SET_VALIDATION_ERRORS', null,  { root:true })
                 commit('SET_ERROR_MESSAGE', null,  { root:true })
@@ -104,73 +99,11 @@ export default {
             }
         },
 
-        async otpVerify({ commit }, formData) {
-            const res = await axios.post('user/otp/verify', formData)
-            if (res.data.status) {
-                commit('SET_VALIDATION_ERRORS', null,  { root:true })
-                commit('SET_ERROR_MESSAGE', null,  { root:true })
-                commit('SET_USER_OTP', 1)
-            }else {
-                if (res.data.errors) {
-                    commit('SET_VALIDATION_ERRORS', res.data.errors, { root:true })
-                    commit('SET_ERROR_MESSAGE', null, { root:true })
-                } else if (res.data.message) {
-                    commit('SET_ERROR_MESSAGE', res.data.message, { root:true })
-                    commit('SET_VALIDATION_ERRORS', null, { root:true })
-                } else {
-                    console.log('someting went wrong');
-                }
-            }
-        },
-
-        async otpResend({ commit }, formData) {
-            const res = await axios.post('user/otp/resend', formData)
-            if (res.data.status) {
-                commit('SET_VALIDATION_ERRORS', null,  { root:true })
-                commit('SET_ERROR_MESSAGE', null,  { root:true })
-            }else {
-                if (res.data.errors) {
-                    commit('SET_VALIDATION_ERRORS', res.data.errors, { root:true })
-                    commit('SET_ERROR_MESSAGE', null, { root:true })
-                } else if (res.data.message) {
-                    commit('SET_ERROR_MESSAGE', res.data.message, { root:true })
-                    commit('SET_VALIDATION_ERRORS', null, { root:true })
-                } else {
-                    console.log('someting went wrong');
-                }
-            }
-        },
-
-        async subscriptionCreate({ commit }, formData) {
-            const res = await axios.post('user/subscription/create', formData)
-            if (res.data.status) {
-                commit('SET_VALIDATION_ERRORS', null,  { root:true })
-                commit('SET_ERROR_MESSAGE', null,  { root:true })
-                commit('SET_USER', res.data.user)
-            }else {
-                if (res.data.errors) {
-                    commit('SET_VALIDATION_ERRORS', res.data.errors, { root:true })
-                    commit('SET_ERROR_MESSAGE', null, { root:true })
-                } else if (res.data.message) {
-                    commit('SET_ERROR_MESSAGE', res.data.message, { root:true })
-                    commit('SET_VALIDATION_ERRORS', null, { root:true })
-                } else {
-                    console.log('someting went wrong');
-                }
-            }
-
-        },
-
         async signOut({ commit }) {
             return axios.post('user/logout').then(() => {
                 commit('SET_TOKEN', null)
                 commit('SET_USER', null)
             })
-        },
-
-        async getBusinessTypes({ commit }) {
-            const res = await axios.get('business/type/list')            
-            commit('SET_BUSINESS_TYPES', res.data.business_types)
         },
     }
 

@@ -8,7 +8,6 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                {{ form }}
                 <form @submit.prevent="createSubmit">
                     <div class="modal-body">
                         <span class="text-danger" v-if="error">{{ error }}</span>
