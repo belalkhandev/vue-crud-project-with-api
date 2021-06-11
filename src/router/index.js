@@ -13,16 +13,6 @@ const routes = [
     component: () => import('@/views/category/Category.vue')
   },
   {
-    path: '/category/create',
-    name: 'CreateCategory',
-    component: () => import('@/views/category/CategoryCreate.vue')
-  },
-  {
-    path: '/category/:id/edit',
-    name: 'EditCategory',
-    component: () => import('@/views/category/CategoryEdit.vue')
-  },
-  {
     path: '/sub-category',
     name: 'SubCategory',
     component: () => import('@/views/sub-category/SubCategory.vue')
