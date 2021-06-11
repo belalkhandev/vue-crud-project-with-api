@@ -6,7 +6,21 @@
                 <button class="btn btn-primary" data-toggle="modal" data-target="#categoryCreateModal">Add Category</button>
             </div>
             <div class="box-body">
-                <table class="table table-bordered" v-if="categories">
+                <div class="row"  v-if="categories">
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="Search category" name="search_key" v-model="search_key" @keyup="filterItems">
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <table class="table table-bordered" v-if="filterCategories">
                     <thead>
                         <tr>
                             <th>SL</th>
@@ -15,7 +29,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(category, i) in categories" :key="category.id">
+                        <tr v-for="(category, i) in filterCategories" :key="category.id">
                             <td>{{ i+1 }}</td>
                             <td>{{ category.name }}</td>
                             <td>
@@ -86,6 +100,7 @@ export default {
                 category_id:'',
                 name: '',
             },
+            search_key: '',
             errors: null,
             error: null,
         }
@@ -97,6 +112,19 @@ export default {
             validation_errors: 'validation_errors',
             error_message: 'error_message'
         }),
+
+        filterCategories: function (){
+            if (this.search_key.length > 3) {
+                var self = this;
+                return this.categories.filter(item => {
+                    if (item.name == self.search_key) {
+                        return item
+                    }
+                })
+            } else {
+                return this.categories
+            }
+        }
     },
 
     methods: {
@@ -157,6 +185,9 @@ export default {
             Object.keys(formData).forEach(function (key) {
                 formData[key] = '';
             });
+        },
+        filterItems() {
+            this.filterCategories
         }
     },
 

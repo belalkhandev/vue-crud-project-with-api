@@ -6,7 +6,21 @@
                 <button class="btn btn-primary" data-toggle="modal" data-target="#productCreateModal">Add Product</button>
             </div>
             <div class="box-body">
-                <table class="table table-bordered" v-if="products">
+                <div class="row"  v-if="products">
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="Search name" name="search_key" v-model="search_key" @keyup="filterItems">
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <table class="table table-bordered" v-if="filterProducts">
                     <thead>
                         <tr>
                             <th>SL</th>
@@ -18,7 +32,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(product, i) in products" :key="product.id">
+                        <tr v-for="(product, i) in filterProducts" :key="product.id">
                             <td>{{ i+1 }}</td>
                             <td>{{ product.image }}</td>
                             <td>{{ product.name }}</td>
@@ -48,7 +62,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="ModalLabel">Create Product</h5>
+                    <h5 class="modal-title" id="ModalLabel">Update Product</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="closeModal">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -115,6 +129,7 @@ export default {
             },
             errors: null,
             error: null,
+            search_key: ''
         }
     },
 
@@ -139,6 +154,19 @@ export default {
                 return this.sub_categories
             }
         },
+
+        filterProducts: function (){
+            if (this.search_key.length > 3) {
+                var self = this;
+                return this.products.filter(item => {
+                    if (item.name == self.search_key || item.category_name == self.search_key) {
+                        return item;
+                    }
+                })
+            } else {
+                return this.products
+            }
+        }
 
     },
 
@@ -194,6 +222,11 @@ export default {
                 }
             });
         },
+
+
+        filterItems() {
+            this.filterProducts
+        }
     },
 
     getCategory: function (id) {
