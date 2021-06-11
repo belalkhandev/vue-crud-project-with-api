@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Services\FileUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -14,12 +15,12 @@ class ProductController extends Controller
     {
         $user = $this->guard()->user();
 
-        $categoires =  Product::orderBy('name', 'ASC')->get();
+        $products =  Product::get();
 
-        if ($categoires->isNotEmpty()) {
+        if ($products->isNotEmpty()) {
             return response()->json([
                 'status' => true,
-                'data' => $categoires
+                'data' => $products
             ]);
         }
 
@@ -34,7 +35,8 @@ class ProductController extends Controller
     {
         $rules = [
             'name' => 'required',
-            'parent_category' => 'required'
+            'category' => 'required',
+            'image' => 'mimes:jpg,jpeg,png,gif,svg'
         ];
 
         //validation check
@@ -50,36 +52,44 @@ class ProductController extends Controller
         $user = $this->guard()->user();
         //check unique
         $exists = Product::where('name', $request->input('name'))
-                        ->where('category_id', $request->input('parent_category'))
                         ->where('user_id', $request->user()->id)
                         ->first();
 
         if ($exists) {
             return response()->json([
                 'status' => false,
-                'errors' => ['name' => 'Already taken']
+                'errors' => ['name' => 'Already this product stored']
             ]);
         }
 
         try {
             // registered new user
-            $category = new Product();
-            $category->user_id = $user->id;
-            $category->name = $request->input('name');
-            $category->category_id = $request->input('parent_category');
+            $product = new Product();
+            $product->user_id = $user->id;
+            $product->name = $request->input('name');
+            $product->category_id = $request->input('category');
+            $product->sub_category_id = $request->input('sub_category') ? $request->input('sub_category') : null;
+            $path = null;
 
-            if ($category->save()) {
+            //upload images
+            if ($request->hasFile('image')) {
+                $path = FileUpload::upload($request, 'image', 'products');
+            }
+
+            $product->image = $path;
+
+            if ($product->save()) {
                 return response()->json([
                     'status' => true,
-                    'message' => 'Sub category stored successfully',
-                    'data' => $category,
+                    'message' => 'Product stored successfully',
+                    'data' => $product,
                 ]);
 
             }
 
             return response()->json([
                 'status' => false,
-                'message' => 'Failed to store sub category',
+                'message' => 'Failed to store product',
             ]);
 
         }catch(\Exception $e) {
@@ -94,7 +104,8 @@ class ProductController extends Controller
     {
         $rules = [
             'name' => 'required',
-            'parent_category' => 'required'
+            'category' => 'required',
+            'image' => 'mimes:jpg,jpeg,png,gif,svg'
         ];
 
         //validation check
@@ -110,7 +121,6 @@ class ProductController extends Controller
         $user = $this->guard()->user();
         //check unique
         $exists = Product::where('name', $request->input('name'))
-                        ->where('category_id', $request->input('parent_category'))
                         ->where('user_id', $request->user()->id)
                         ->where('id', '!=', $id)
                         ->first();
@@ -118,28 +128,42 @@ class ProductController extends Controller
         if ($exists) {
             return response()->json([
                 'status' => false,
-                'errors' => ['name' => 'Already taken']
+                'errors' => ['name' => 'Already taken this product']
             ]);
         }
 
         try {
             // registered new user
-            $category = Product::find($id);
-            $category->name = $request->input('name');
-            $category->category_id = $request->input('parent_category');
+            $product = Product::find($id);
+            $product->user_id = $user->id;
+            $product->name = $request->input('name');
+            $product->category_id = $request->input('category');
+            $product->sub_category_id = $request->input('sub_category') ? $request->input('sub_category') : null;
 
-            if ($category->save()) {
+            //upload images
+            if ($request->hasFile('image')) {
+                //delete old photo
+                $old_image = $product->image;
+                $path = FileUpload::upload($request, 'image', 'products');
+                $product->image = $path;
+
+                if ($old_image) {
+                    unlink($old_image);
+                }
+            }
+
+            if ($product->save()) {
                 return response()->json([
                     'status' => true,
-                    'message' => 'Sub category updated successfully',
-                    'data' => $category,
+                    'message' => 'Product updated successfully',
+                    'data' => $product,
                 ]);
 
             }
 
             return response()->json([
                 'status' => false,
-                'message' => 'Failed to update sub-category',
+                'message' => 'Failed to update product',
             ]);
 
         }catch(\Exception $e) {
@@ -150,23 +174,28 @@ class ProductController extends Controller
         }
     }
 
-    public function destroy(Product $category, $id)
+    public function destroy(Product $product, $id)
     {
         try {
             // registered new user
-            $category = $category->find($id);
+            $product = $product->find($id);
+            $image = $product->iamge;
 
-            if ($category->delete()) {
+            if ($product->delete()) {
+                if ($image) {
+                    unlink($image);
+                }
+
                 return response()->json([
                     'status' => true,
-                    'message' => 'Sub category deleted successfully',
+                    'message' => 'Product deleted successfully',
                 ]);
 
             }
 
             return response()->json([
                 'status' => false,
-                'message' => 'Failed to delete sub ategory',
+                'message' => 'Failed to delete product',
             ]);
 
         }catch(\Exception $e) {
