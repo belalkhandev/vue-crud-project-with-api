@@ -4,16 +4,11 @@ export default {
     namespaced: true,
     state: {
         categories: null,
-        category: null
     },
 
     getters: {
         categories(state) {
             return state.categories
-        },
-
-        category(state) {
-            return state.category
         },
     },
 

@@ -1,50 +1,5 @@
 <template>
-    <div>
-        <div class="box">
-            <div class="box-header">
-                <h5 class="box-title">Product List</h5>
-                <button class="btn btn-primary" data-toggle="modal" data-target="#productCreateModal">Add Product</button>
-            </div>
-            <div class="box-body">
-                <table class="table table-bordered" v-if="products">
-                    <thead>
-                        <tr>
-                            <th>SL</th>
-                            <th>Image</th>
-                            <th>Name</th>
-                            <th>Category</th>
-                            <th>Sub Category</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(product, i) in products" :key="product.id">
-                            <td>{{ i+1 }}</td>
-                            <td>{{ product.image }}</td>
-                            <td>{{ product.name }}</td>
-                            <td>{{ product.category_name }}</td>
-                            <td>{{ product.sub_category_name }}</td>
-                            <td>
-                                <div class="action-group">
-                                    <button class="btn btn-sm btn-success" @click="productEdit(product)">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-danger" @click="deleteProduct(product.id)">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="no-data" v-else>
-                    <img src="@/assets/images/sad-cloud.png" alt="">
-                    <h3>Opps! No Data Found</h3>
-                </div>
-            </div>
-        </div>
-        <ProductCreate></ProductCreate>
-        <div class="modal fade" id="productEditModal">
+    <div class="modal fade" id="productCreateModal">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -53,7 +8,8 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form @submit.prevent="updateSubmit">
+                {{ form }}
+                <form @submit.prevent="createSubmit">
                     <div class="modal-body">
                         <span class="text-danger" v-if="error">{{ error }}</span>
                         <div class="form-group">
@@ -93,38 +49,32 @@
             </div>
         </div>
     </div>
-    </div>
 </template>
 <script>
 import { mapGetters, mapActions } from 'vuex'
-import ProductCreate from './ProductCreate.vue';
-import $ from 'jquery'
 
 export default {
-    name: 'Product',
-    components: { 
-        ProductCreate 
-    },
-    data () {
+    name: 'ProductCreate',
+
+    data() {
         return {
             form: {
-                product_id:'',
-                category_id:'',
-                sub_category_id:'',
                 name: '',
+                image: '',
+                category: '',
+                sub_category: ''
             },
             errors: null,
-            error: null,
+            error: null
         }
     },
 
     computed: {
         ...mapGetters({
-            products: 'product/products',
+            validation_errors: 'validation_errors',
+            error_message: 'error_message',
             categories: 'category/categories',
             sub_categories: 'subCategory/categories',
-            validation_errors: 'validation_errors',
-            error_message: 'error_message'
         }),
 
         filterSubCategories: function (){
@@ -138,32 +88,22 @@ export default {
             } else {
                 return this.sub_categories
             }
-        },
-
+        }
     },
 
     methods: {
         ...mapActions({
-            getProductList: 'product/getProductList',
             getCategoryList: 'category/getCategoryList',
             getSubCategoryList: 'subCategory/getCategoryList',
-            productUpdate: 'product/updateProduct',
-            productDelete: 'product/deleteProduct'
+            createProduct: 'product/createProduct',
         }),
 
-        productEdit(product) {
-            $('#productEditModal').modal('show');
-            this.form.product_id = product.id
-            this.form.name = product.name
-            this.form.category = product.category_id
-            this.form.sub_category = product.sub_category_id
-        },
-
-        updateSubmit() {
-            this.productUpdate(this.form).then(() => {
+        createSubmit() {
+            this.createProduct(this.form).then(() => {
                 if (!this.validation_errors && !this.error_message) {
                     this.errors = null;
                     this.error = null;
+                    this.resetForm();
                 } else {
                     this.errors = this.validation_errors;
                     this.error = this.error_message;
@@ -171,45 +111,30 @@ export default {
             })
         },
 
-        deleteProduct(product) {
-            this.$swal({
-                title:"Want to delete?",
-                text: "Are you sure? You won't be able to revert this!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#45a800",
-                confirmButtonText: "Yes, Delete it!",
-                cancelButtonColor: '#c82333',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                   this.productDelete(product).then(() => {
-                        if (!this.validation_errors && !this.error_message) {
-                            this.errors = null;
-                            this.error = null;
-                        } else {
-                            this.errors = this.validation_errors;
-                            this.error = this.error_message;
-                        }
-                    })
-                }
+        closeModal() {
+            this.errors = this.error = null;
+            this.resetForm();
+        },
+
+        resetForm() {
+            let formData = this.form;
+            Object.keys(formData).forEach(function (key) {
+                formData[key] = '';
             });
         },
-    },
 
-    getCategory: function (id) {
-        return id;
-    },
-
-    getSubCategory: function (id) {
-        return id;
+        categoryChange(event){
+            let category_id = event.target.value;
+            if (category_id) {
+                this.filterSubCategories
+            }
+        }
     },
 
     created() {
-        this.getProductList();
         this.getCategoryList();
         this.getSubCategoryList();
     }
-
 }
 </script>
 

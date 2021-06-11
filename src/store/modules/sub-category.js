@@ -43,6 +43,10 @@ export default {
                 return item.id === category_id
             });
             state.categories.splice(item, 1)
+
+            if (state.categories.length < 1) {
+                state.categories = null;
+            }
             
         }
     },

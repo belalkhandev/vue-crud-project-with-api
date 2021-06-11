@@ -7,7 +7,8 @@
                     <div class="header">
                         <div class="logo">
                             <router-link :to="{'name': 'Home'}">
-                                <h1><span>vue</span>Crud</h1>
+                                <!-- <h1><span>vue</span>Crud</h1> -->
+                                <img src="@/assets/images/logo-english.png" alt="" height="40">
                             </router-link>
                         </div>
                         <Navigation></Navigation>
