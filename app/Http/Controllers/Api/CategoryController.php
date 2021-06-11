@@ -47,9 +47,10 @@ class CategoryController extends Controller
         }
 
         $user = $this->guard()->user();
+
         //check unique
-        $exists = Category::where('name', $request->input('name'))
-                        ->where('user_id', $request->user()->id)
+        $exists = Category::where('name', $request->get('name'))
+                        ->where('user_id', $user->id)
                         ->first();
 
         if ($exists) {
@@ -63,7 +64,7 @@ class CategoryController extends Controller
             // registered new user
             $category = new Category();
             $category->user_id = $user->id;
-            $category->name = $request->input('name');
+            $category->name = $request->get('name');
 
             if ($category->save()) {
                 return response()->json([
@@ -106,7 +107,7 @@ class CategoryController extends Controller
         $user = $this->guard()->user();
         //check unique
         $exists = Category::where('name', $request->input('name'))
-                        ->where('user_id', $request->user()->id)
+                        ->where('user_id', $user->id)
                         ->where('id', '!=', $id)
                         ->first();
 

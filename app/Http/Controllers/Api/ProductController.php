@@ -52,7 +52,7 @@ class ProductController extends Controller
         $user = $this->guard()->user();
         //check unique
         $exists = Product::where('name', $request->input('name'))
-                        ->where('user_id', $request->user()->id)
+                        ->where('user_id', $user->id)
                         ->first();
 
         if ($exists) {
@@ -121,7 +121,7 @@ class ProductController extends Controller
         $user = $this->guard()->user();
         //check unique
         $exists = Product::where('name', $request->input('name'))
-                        ->where('user_id', $request->user()->id)
+                        ->where('user_id', $user->id)
                         ->where('id', '!=', $id)
                         ->first();
 

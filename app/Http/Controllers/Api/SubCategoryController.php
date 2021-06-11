@@ -51,7 +51,7 @@ class SubCategoryController extends Controller
         //check unique
         $exists = SubCategory::where('name', $request->input('name'))
                         ->where('category_id', $request->input('parent_category'))
-                        ->where('user_id', $request->user()->id)
+                        ->where('user_id', $user->id)
                         ->first();
 
         if ($exists) {
@@ -111,7 +111,7 @@ class SubCategoryController extends Controller
         //check unique
         $exists = SubCategory::where('name', $request->input('name'))
                         ->where('category_id', $request->input('parent_category'))
-                        ->where('user_id', $request->user()->id)
+                        ->where('user_id', $user->id)
                         ->where('id', '!=', $id)
                         ->first();
 
