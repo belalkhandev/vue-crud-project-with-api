@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\UsersController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group([
+    'middleware'=> 'api'
+], function ($router) {
+    $router->group(['prefix'=> 'user'], function ($router) {
+        $router->post('register', [UsersController::class, 'register']);
+        $router->post('login', [UsersController::class, 'login']);
+        $router->post('logout', [UsersController::class, 'logout']);
+        $router->post('me', [UsersController::class, 'me']);
+    });
+
 });
